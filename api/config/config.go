@@ -9,12 +9,19 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+
+	"github.com/joho/godotenv"
 )
 
 var DB *gorm.DB
 
 func InitDB() (*gorm.DB, error) {
+	// Load .env file if exists
+	godotenv.Load()
+	
+	// Debug: print what DSN is being used
 	dsn := os.Getenv("DB_DSN")
+	log.Printf("DB_DSN from env: %s", dsn)
 	if dsn == "" {
 		dsn = "root:password@tcp(localhost:3306)/wacrm?charset=utf8mb4&parseTime=True&loc=Local"
 	}

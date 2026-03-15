@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os"
 	"os/signal"
@@ -16,6 +17,19 @@ import (
 )
 
 func main() {
+	// 解析命令行参数
+	dsn := flag.String("dsn", "", "Database DSN (e.g., user:pass@tcp(host:port)/dbname)")
+	port := flag.String("port", "8080", "Server port")
+	flag.Parse()
+	
+	// 如果传入dsn参数，设置环境变量
+	if *dsn != "" {
+		os.Setenv("DB_DSN", *dsn)
+	}
+	if *port != "" {
+		os.Setenv("PORT", *port)
+	}
+
 	// 初始化数据库
 	db, err := config.InitDB()
 	if err != nil {
@@ -100,11 +114,8 @@ func main() {
 		api.GET("/stats/messages", handlers.GetMessageStats)
 	}
 
-	// 端口
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
+	// 端口 (已通过命令行参数设置)
+	// port := os.Getenv("PORT")
 
 	// 优雅关闭
 	go func() {
@@ -117,8 +128,8 @@ func main() {
 		os.Exit(0)
 	}()
 
-	log.Printf("Server starting on port %s", port)
-	r.Run(":" + port)
+	log.Printf("Server starting on port %s", *port)
+	r.Run(":" + *port)
 }
 
 // restoreWhatsAppConnections 恢复之前的WhatsApp连接
